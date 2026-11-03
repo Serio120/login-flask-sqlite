@@ -1,4 +1,8 @@
+import os
 import sqlite3
+
+
 def obtener_conexion():
-    """Establecer y devolver una conexión a la base de datos SQLite."""
-    return sqlite3.connect('usuarios.db')
+    """Open the configured SQLite database."""
+    database_path = os.environ.get("DATABASE_PATH", "usuarios.db")
+    return sqlite3.connect(database_path)
