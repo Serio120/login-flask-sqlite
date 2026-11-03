@@ -1,57 +1,95 @@
-<h1 align="center">
-    <b>Proyecto de Inicio de Sesión con Flask y SQLite</b>
-</h1>
+# Inicio de sesión con Flask y SQLite
 
+Aplicación educativa de autenticación con Flask, SQLite y sesiones.
 
-# Estructura del Proyecto
-Este es un ejemplo de la estructura de un proyecto de Flask que incluye una página de inicio de sesión y una base de datos SQLite. A continuación se muestra cómo debería organizarse el proyecto:
+## Requisitos
 
-```plaintext
-/mi_proyecto
-│
-├── /templates
-│   └── login.html
-│
-├── app.py
-├── conexion.py
-└── inicializar_db.py
+- Python 3.10 o superior
+- pip
+
+## Instalación
+
+```bash
+git clone https://github.com/Serio120/login-flask-sqlite.git
+cd login-flask-sqlite
+python -m venv .venv
 ```
 
+Activa el entorno virtual:
 
-# Descripción de los Archivos
-- `app.py`: Este es el archivo principal de la aplicación Flask donde se define la ruta
-    de inicio de sesión y se configura la aplicación.
-    - `conexion.py`: Este archivo contiene la lógica para conectarse a la base de datos SQLite.
-    - `inicializar_db.py`: Este archivo se utiliza para inicializar la base de datos SQLite y crear la tabla de usuarios.
-    - `templates/login.html`: Este es el archivo HTML que define la interfaz de usuario para la página de inicio de sesión.
-    - `agre_usu.py`: Permite agregar usuarios manualmente a la base de datos, facilitando las pruebas del sistema de inicio de sesión antes de su uso en producción.
-    - `login.html`: Contiene la estructura HTML de la página de inicio de sesión, permitiendo separar la lógica de la aplicación de la presentación visual.
-    # Orden de Creación
+```bash
+# Linux / macOS
+source .venv/bin/activate
 
-1. Archivo: `app.py`
-Este archivo contiene la configuración de la aplicación Flask y las rutas necesarias para el sistema de login.
+# Windows PowerShell
+.venv\\Scripts\\Activate.ps1
+```
 
-2. Archivo: `conexion.py`
-Este archivo maneja la conexión a la base de datos SQLite.
+Instala dependencias:
 
-3. Archivo: `inicializar_db.py`
-Este archivo se utiliza para crear la tabla de usuarios en la base de datos.
- 
-4. Archivo: `templates/login.html`
-Este archivo contiene el formulario HTML para el inicio de sesión.
+```bash
+pip install -r requirements.txt
+```
 
-5. Agregar un Usuario Manualmente: `agre_usu.py`
-Antes de probar el inicio de sesión, puedes agregar un usuario manualmente en la base de datos SQLite. Puedes hacerlo ejecutando el siguiente código en un script separado o en un intérprete de Python:
+## Configuración
 
-6. Ejecutar la Aplicación
-Para ejecutar la aplicación, abre una terminal, navega a la carpeta del proyecto y ejecuta: `python app.py`
-   
----
-   
-## Serio120: @workspace /explain 
+Define una clave secreta propia para firmar las sesiones. No uses una clave fija en el código ni compartas el valor:
 
+```bash
+# Linux / macOS
+export FLASK_SECRET_KEY="$(python -c 'import secrets; print(secrets.token_hex(32))')"
 
+# Windows PowerShell
+$env:FLASK_SECRET_KEY = python -c "import secrets; print(secrets.token_hex(32))"
+```
 
-    
+Opcionalmente, configura la ruta de la base de datos mediante `DATABASE_PATH`. Por defecto se utiliza `usuarios.db` en el directorio actual.
 
+## Inicializar y crear un usuario
 
+La aplicación crea la tabla si no existe. Para crear un usuario de prueba sin almacenar contraseñas en texto plano:
+
+```bash
+# Linux / macOS
+export APP_USERNAME="usuario_prueba"
+export APP_PASSWORD="elige-una-contraseña"
+python agre_usu.py
+
+# Windows PowerShell
+$env:APP_USERNAME = "usuario_prueba"
+$env:APP_PASSWORD = "elige-una-contraseña"
+python agre_usu.py
+```
+
+El script guarda el hash de la contraseña, no la contraseña original.
+
+## Ejecutar
+
+```bash
+python app.py
+```
+
+Abre [http://127.0.0.1:5000/login](http://127.0.0.1:5000/login).
+
+Rutas disponibles:
+
+- `GET /login`: muestra el formulario.
+- `POST /login`: valida las credenciales.
+- `GET /bienvenido`: requiere una sesión iniciada.
+- `GET /logout`: cierra la sesión.
+
+## Tests
+
+```bash
+python -m unittest discover -v
+```
+
+Las pruebas usan una base SQLite temporal y no modifican la base de datos local.
+
+## Seguridad y limitaciones
+
+- Las contraseñas nuevas se almacenan mediante hashes de Werkzeug.
+- Las contraseñas heredadas en texto plano se convierten a hash después de un inicio de sesión correcto.
+- La clave de sesión se obtiene de `FLASK_SECRET_KEY`; la aplicación no arranca si falta.
+- El modo debug está desactivado.
+- Este repositorio es un ejemplo didáctico, no una solución de autenticación lista para producción. Antes de desplegarlo, añade protección CSRF, limitación de intentos, HTTPS, gestión de usuarios y revisión de configuración.
